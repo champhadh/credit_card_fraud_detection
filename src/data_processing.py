@@ -1,37 +1,25 @@
-import os
 import pandas as pd
+import os
 
-# Define the base directory dynamically
-BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
-DATA_PATH = os.path.join(BASE_DIR, "data", "creditcard.csv")
+# Ensure the data directory exists
+os.makedirs("data", exist_ok=True)
 
-# Load the dataset
-try:
-    df = pd.read_csv(DATA_PATH)
-    print("✅ Data successfully loaded!")
-except FileNotFoundError:
-    print(f"❌ File not found: {DATA_PATH}")
-    exit(1)
+# Load dataset
+df = pd.read_csv("data/creditcard.csv")  # Use correct path
 
-# Display basic info
+print("✅ Data successfully loaded!")
+
+# Print dataset overview
 print("📊 Dataset Overview:")
 print(df.info())
 print(df.head())
 
-# Drop duplicates if any
-df.drop_duplicates(inplace=True)
+# Normalize 'Amount' column
+df["Amount"] = (df["Amount"] - df["Amount"].min()) / (df["Amount"].max() - df["Amount"].min())
 
-# Handle missing values (if any)
-df.fillna(0, inplace=True)
+print("🔄 Amount column normalized.")
 
-# Normalize the Amount column
-if 'Amount' in df.columns:
-    from sklearn.preprocessing import StandardScaler
-    scaler = StandardScaler()
-    df['Amount'] = scaler.fit_transform(df[['Amount']])
-    print("🔄 Amount column normalized.")
+# Save cleaned dataset **with column names** and without index
+df.to_csv("data/cleaned_creditcard.csv", index=False)
 
-# Save the cleaned dataset
-CLEANED_DATA_PATH = os.path.join(BASE_DIR, "data", "cleaned_creditcard.csv")
-df.to_csv(CLEANED_DATA_PATH, index=False)
-print(f"💾 Cleaned data saved at: {CLEANED_DATA_PATH}")
+print("💾 Cleaned data saved at: data/cleaned_creditcard.csv")
